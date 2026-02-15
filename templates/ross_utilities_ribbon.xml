@@ -1,0 +1,96 @@
+<customUI xmlns="http://schemas.microsoft.com/office/2009/07/customui" onLoad="mod_ribbon_entrypoints.RibbonOnLoad">
+  <ribbon>
+    <tabs>
+      <tab id="tabRossUtilities" label="Ross Utilities">
+        <group id="grpSheetManagement" label="Sheet Management">
+          <button id="btnRefreshSheetIndex"
+                  label="Refresh Sheet Index"
+                  imageMso="RefreshAll"
+                  size="large"
+                  onAction="mod_ribbon_entrypoints.BtnRefreshSheetIndex"
+                  screentip="Refresh Sheet Index"
+                  supertip="Rebuilds the worksheet index and updates sheet references for this workbook."/>
+          <button id="btnAddStandardSheet"
+                  label="Add Standard Sheet"
+                  imageMso="WorksheetInsert"
+                  size="large"
+                  onAction="mod_ribbon_entrypoints.BtnAddStandardSheet"
+                  screentip="Add Standard Sheet"
+                  supertip="Creates a new worksheet using your standard naming and setup conventions."/>
+          <button id="btnHideConfigSheets"
+                  label="Hide Config Sheets"
+                  imageMso="SheetHide"
+                  onAction="mod_ribbon_entrypoints.BtnHideConfigSheets"
+                  screentip="Hide Config Sheets"
+                  supertip="Hides internal configuration sheets from day-to-day workbook users."/>
+        </group>
+
+        <group id="grpFormatting" label="Formatting">
+          <button id="btnApplyReportTheme"
+                  label="Apply Report Theme"
+                  imageMso="ThemesGallery"
+                  size="large"
+                  onAction="mod_ribbon_entrypoints.BtnApplyReportTheme"
+                  screentip="Apply Report Theme"
+                  supertip="Applies Ross Utilities report formatting, fonts, and color styles to the active sheet."/>
+          <button id="btnFormatHeaders"
+                  label="Format Headers"
+                  imageMso="HeaderFooterInsert"
+                  onAction="mod_ribbon_entrypoints.BtnFormatHeaders"
+                  screentip="Format Headers"
+                  supertip="Formats header rows for readability using standard bolding, borders, and fill colors."/>
+          <button id="btnAutoFitUsedRange"
+                  label="AutoFit Used Range"
+                  imageMso="AutoFitWindow"
+                  onAction="mod_ribbon_entrypoints.BtnAutoFitUsedRange"
+                  screentip="AutoFit Used Range"
+                  supertip="Auto-fits row heights and column widths based on current used cells."/>
+        </group>
+
+        <group id="grpNavigation" label="Navigation">
+          <button id="btnGoToDashboard"
+                  label="Go to Dashboard"
+                  imageMso="PivotTableGoToSourceData"
+                  size="large"
+                  onAction="mod_ribbon_entrypoints.BtnGoToDashboard"
+                  screentip="Go to Dashboard"
+                  supertip="Navigates directly to the main dashboard worksheet."/>
+          <button id="btnNextDataSheet"
+                  label="Next Data Sheet"
+                  imageMso="FileNext"
+                  onAction="mod_ribbon_entrypoints.BtnNextDataSheet"
+                  screentip="Next Data Sheet"
+                  supertip="Moves to the next worksheet marked as a data sheet."/>
+          <button id="btnPreviousDataSheet"
+                  label="Previous Data Sheet"
+                  imageMso="FilePrevious"
+                  onAction="mod_ribbon_entrypoints.BtnPreviousDataSheet"
+                  screentip="Previous Data Sheet"
+                  supertip="Moves to the previous worksheet marked as a data sheet."/>
+        </group>
+
+        <group id="grpDataTools" label="Data Tools">
+          <button id="btnRunDataValidation"
+                  label="Run Data Validation"
+                  imageMso="DataValidation"
+                  size="large"
+                  onAction="mod_ribbon_entrypoints.BtnRunDataValidation"
+                  screentip="Run Data Validation"
+                  supertip="Checks key input ranges for missing values, type mismatches, and business rule violations."/>
+          <button id="btnDeduplicateSelection"
+                  label="Deduplicate Selection"
+                  imageMso="RemoveDuplicates"
+                  onAction="mod_ribbon_entrypoints.BtnDeduplicateSelection"
+                  screentip="Deduplicate Selection"
+                  supertip="Removes duplicate rows from the current selection while preserving the first instance."/>
+          <button id="btnExportCurrentRange"
+                  label="Export Current Range"
+                  imageMso="FileSaveAsExcelXlsx"
+                  onAction="mod_ribbon_entrypoints.BtnExportCurrentRange"
+                  screentip="Export Current Range"
+                  supertip="Exports the active range to a new workbook for downstream sharing or processing."/>
+        </group>
+      </tab>
+    </tabs>
+  </ribbon>
+</customUI>
