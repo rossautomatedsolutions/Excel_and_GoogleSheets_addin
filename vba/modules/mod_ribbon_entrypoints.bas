@@ -1,83 +1,103 @@
 Attribute VB_Name = "mod_ribbon_entrypoints"
 Option Explicit
 
-'===============================================================================
-' Module:        mod_ribbon_entrypoints
-' Purpose:       Ribbon callback entry points that route to feature modules.
-' Author:        <TODO: Team/Owner>
-' Created:       <TODO: YYYY-MM-DD>
-' Last Updated:  <TODO: YYYY-MM-DD>
-' Dependencies:  Office RibbonX callbacks
-'===============================================================================
+Private Const APP_TITLE As String = "Excel Add-in"
 
-'===============================================================================
-' #Region "Sheet Management Ribbon Callbacks"
-'===============================================================================
-
-Public Sub RibbonCreateManagedSheet(control As IRibbonControl)
-
+' Generic Ribbon callback for regular buttons.
+' Recommended Ribbon XML usage:
+'   onAction="RibbonButton_OnAction"
+'   tag="proc=mod_example.DoWork;ok=Completed"
+Public Sub RibbonButton_OnAction(ByVal control As IRibbonControl)
+    HandleRibbonAction control
 End Sub
 
-Public Sub RibbonDuplicateManagedSheet(control As IRibbonControl)
-
+' Callback for toggle buttons. The pressed state is accepted to satisfy Ribbon signature
+' and intentionally ignored for procedure dispatch.
+Public Sub RibbonToggle_OnAction(ByVal control As IRibbonControl, ByVal pressed As Boolean)
+    HandleRibbonAction control
 End Sub
 
-Public Sub RibbonArchiveManagedSheet(control As IRibbonControl)
+Private Sub HandleRibbonAction(ByVal control As IRibbonControl)
+    Dim procedureName As String
+    Dim successMessage As String
+    Dim errorMessage As String
 
+    procedureName = ResolveProcedureName(control)
+    successMessage = ResolveSuccessMessage(control)
+
+    If Len(procedureName) = 0 Then
+        MsgBox "This Ribbon command is not configured.", vbExclamation, APP_TITLE
+        Exit Sub
+    End If
+
+    If Not ExecuteRibbonProcedure(procedureName, errorMessage) Then
+        MsgBox "Unable to run command '" & control.Id & "'." & vbCrLf & errorMessage, vbExclamation, APP_TITLE
+        Exit Sub
+    End If
+
+    If Len(successMessage) > 0 Then
+        MsgBox successMessage, vbInformation, APP_TITLE
+    End If
 End Sub
 
-Public Sub RibbonDeleteManagedSheet(control As IRibbonControl)
+Private Function ExecuteRibbonProcedure(ByVal procedureName As String, ByRef errorMessage As String) As Boolean
+    On Error GoTo RunWithoutBoost
+    Application.Run "RunWithPerformanceBoost", procedureName
+    ExecuteRibbonProcedure = True
+    Exit Function
 
-End Sub
+RunWithoutBoost:
+    Err.Clear
+    On Error GoTo ExecutionFailed
+    Application.Run procedureName
+    ExecuteRibbonProcedure = True
+    Exit Function
 
-'===============================================================================
-' #End Region
-'===============================================================================
+ExecutionFailed:
+    errorMessage = Err.Description
+    ExecuteRibbonProcedure = False
+End Function
 
-'===============================================================================
-' #Region "Formatting Ribbon Callbacks"
-'===============================================================================
+Private Function ResolveProcedureName(ByVal control As IRibbonControl) As String
+    Dim tagProcedure As String
 
-Public Sub RibbonApplyStandardStyle(control As IRibbonControl)
+    tagProcedure = GetTagValue(control, "proc")
+    If Len(tagProcedure) > 0 Then
+        ResolveProcedureName = tagProcedure
+        Exit Function
+    End If
 
-End Sub
+    ' Convention fallback:
+    ' 1) control.Id equals full VBA procedure name (e.g. mod_sync.RunNow)
+    ' 2) control.Id maps to Ribbon_<Id> in this project
+    If InStr(1, control.Id, ".", vbTextCompare) > 0 Then
+        ResolveProcedureName = control.Id
+    Else
+        ResolveProcedureName = "Ribbon_" & control.Id
+    End If
+End Function
 
-Public Sub RibbonApplyHighlightStyle(control As IRibbonControl)
+Private Function ResolveSuccessMessage(ByVal control As IRibbonControl) As String
+    ResolveSuccessMessage = GetTagValue(control, "ok")
+End Function
 
-End Sub
+Private Function GetTagValue(ByVal control As IRibbonControl, ByVal keyName As String) As String
+    Dim tagText As String
+    Dim pairs() As String
+    Dim i As Long
+    Dim kvp() As String
 
-Public Sub RibbonApplyHeaderFormatting(control As IRibbonControl)
+    tagText = Trim$(control.Tag)
+    If Len(tagText) = 0 Then Exit Function
 
-End Sub
-
-Public Sub RibbonResetFormatting(control As IRibbonControl)
-
-End Sub
-
-'===============================================================================
-' #End Region
-'===============================================================================
-
-'===============================================================================
-' #Region "Navigation and Data Ribbon Callbacks"
-'===============================================================================
-
-Public Sub RibbonGoToDashboard(control As IRibbonControl)
-
-End Sub
-
-Public Sub RibbonGoToDataSheet(control As IRibbonControl)
-
-End Sub
-
-Public Sub RibbonImportCsv(control As IRibbonControl)
-
-End Sub
-
-Public Sub RibbonRefreshData(control As IRibbonControl)
-
-End Sub
-
-'===============================================================================
-' #End Region
-'===============================================================================
+    pairs = Split(tagText, ";")
+    For i = LBound(pairs) To UBound(pairs)
+        kvp = Split(pairs(i), "=", 2)
+        If UBound(kvp) = 1 Then
+            If StrComp(Trim$(kvp(0)), keyName, vbTextCompare) = 0 Then
+                GetTagValue = Trim$(kvp(1))
+                Exit Function
+            End If
+        End If
+    Next i
+End Function
