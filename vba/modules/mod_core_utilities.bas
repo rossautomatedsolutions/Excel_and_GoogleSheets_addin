@@ -1,83 +1,50 @@
 Attribute VB_Name = "mod_core_utilities"
 Option Explicit
 
-'===============================================================================
-' Module:        mod_core_utilities
-' Purpose:       Shared utility entry points used across modules.
-' Author:        <TODO: Team/Owner>
-' Created:       <TODO: YYYY-MM-DD>
-' Last Updated:  <TODO: YYYY-MM-DD>
-' Dependencies:  Excel Object Model, VBA Runtime
-'===============================================================================
+Public Sub RunWithPerformanceBoost(ByVal taskName As String, ByVal taskProcedure As String)
+    Dim originalScreenUpdating As Boolean
+    Dim originalEnableEvents As Boolean
+    Dim originalCalculation As XlCalculation
+    Dim startTime As Double
+    Dim elapsedSeconds As Double
 
-'===============================================================================
-' #Region "Workbook Context Utilities"
-'===============================================================================
+    On Error GoTo HandleError
 
-Public Sub InitializeWorkbookContext()
+    If LenB(Trim$(taskProcedure)) = 0 Then
+        Err.Raise vbObjectError + 2001, "RunWithPerformanceBoost", "taskProcedure cannot be blank."
+    End If
 
+    originalScreenUpdating = Application.ScreenUpdating
+    originalEnableEvents = Application.EnableEvents
+    originalCalculation = Application.Calculation
+
+    Application.ScreenUpdating = False
+    Application.EnableEvents = False
+    Application.Calculation = xlCalculationManual
+
+    startTime = Timer
+
+    Application.Run taskProcedure
+
+CleanExit:
+    On Error Resume Next
+    Application.Calculation = originalCalculation
+    Application.EnableEvents = originalEnableEvents
+    Application.ScreenUpdating = originalScreenUpdating
+    On Error GoTo 0
+
+    If startTime > 0 Then
+        elapsedSeconds = Timer - startTime
+        If elapsedSeconds < 0 Then elapsedSeconds = elapsedSeconds + 86400#
+
+        Debug.Print "[Performance] " & IIf(LenB(Trim$(taskName)) > 0, taskName, taskProcedure) & _
+                    " completed in " & Format$(elapsedSeconds, "0.000") & " seconds."
+    End If
+
+    Exit Sub
+
+HandleError:
+    Debug.Print "[Performance][ERROR] " & IIf(LenB(Trim$(taskName)) > 0, taskName, taskProcedure) & _
+                " failed. " & Err.Number & " - " & Err.Description
+    Resume CleanExit
 End Sub
-
-Public Sub ValidateWorkbookState()
-
-End Sub
-
-Public Sub SaveWorkbookSnapshot()
-
-End Sub
-
-Public Sub RestoreWorkbookSnapshot()
-
-End Sub
-
-'===============================================================================
-' #End Region
-'===============================================================================
-
-'===============================================================================
-' #Region "Error and Logging Utilities"
-'===============================================================================
-
-Public Sub LogInfoMessage()
-
-End Sub
-
-Public Sub LogWarningMessage()
-
-End Sub
-
-Public Sub LogErrorMessage()
-
-End Sub
-
-Public Sub ClearLogHistory()
-
-End Sub
-
-'===============================================================================
-' #End Region
-'===============================================================================
-
-'===============================================================================
-' #Region "Performance Utilities"
-'===============================================================================
-
-Public Sub BeginPerformanceScope()
-
-End Sub
-
-Public Sub EndPerformanceScope()
-
-End Sub
-
-Public Sub DisableExpensiveExcelFeatures()
-
-End Sub
-
-Public Sub EnableExpensiveExcelFeatures()
-
-End Sub
-
-'===============================================================================
-' #End Region
-'===============================================================================
